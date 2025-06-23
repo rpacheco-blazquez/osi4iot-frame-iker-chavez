@@ -1,0 +1,3 @@
+[submodule "Deteccion - Pulsador (flask)"]
+	path = Deteccion - Pulsador (flask)
+	url = https://github.com/tu-usuario/tu-repo-flask.git
