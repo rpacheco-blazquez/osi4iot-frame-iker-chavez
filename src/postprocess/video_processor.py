@@ -21,6 +21,10 @@ class VideoPostProcessor:
             pixels_per_cm: Factor de conversión píxeles a centímetros
         """
         self.detector = YOLOPoseDetector(model_path)
+        # Cargar el modelo YOLO
+        if not self.detector.load_model():
+            print("⚠️ Advertencia: No se pudo cargar el modelo YOLO")
+        
         self.distance_calculator = DistanceCalculator(pixels_per_cm)
         self.cap = None
         self.is_running = False

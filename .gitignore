@@ -1,14 +1,9 @@
 # ============================================================================
-# .gitignore para Proyecto Pórtico IoT - Solo Producto Final
+# .gitignore para Proyecto Pórtico IoT
 # ============================================================================
 
 # Entornos virtuales de Python
 .venv/
-venv/
-env/
-ENV/
-
-# Directorio Trae AI
 .trae/
 
 # Configuraciones sensibles de MQTT/IoT
@@ -50,9 +45,6 @@ MANIFEST
 
 # Logs y datos temporales
 *.log
-data/logs/
-data/processed/
-data/raw/
 *.tmp
 *.temp
 
@@ -99,26 +91,9 @@ Thumbs.db
 dicapua_stats_*.json
 dicapua_monitor.log
 
-# Archivos JSON de configuración temporal
-# movement_config.json  # Comentado para permitir este archivo necesario
-
 # Archivos de configuración local
 config/local_*.yaml
 config/dev_*.yaml
 
-# Archivos de imagen de test
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-!models/*.pt
-
-# Archivos UI temporales
-ui/*.ui
-
 # Vercel
 .vercel/
-
-# Archivos específicos que NO deben subirse
-src/mqtt/config/__pycache__/credentials.cpython-312.pyc

@@ -136,6 +136,45 @@ class YOLOPoseDetector:
             
         return detections
 
+    def draw_detections(self, frame: np.ndarray, detections: List[dict]) -> np.ndarray:
+        """Dibuja las detecciones en el frame.
+        
+        Args:
+            frame: Frame original
+            detections: Lista de detecciones
+            
+        Returns:
+            Frame con las detecciones dibujadas
+        """
+        result_frame = frame.copy()
+        
+        for detection in detections:
+            bbox = detection['bbox']
+            confidence = detection['confidence']
+            class_name = detection['class_name']
+            keypoints = detection.get('keypoints')
+            
+            # Dibujar bounding box
+            x1, y1, x2, y2 = map(int, bbox)
+            cv2.rectangle(result_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            
+            # Dibujar etiqueta
+            label = f"{class_name}: {confidence:.2f}"
+            label_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
+            cv2.rectangle(result_frame, (x1, y1 - label_size[1] - 10), 
+                         (x1 + label_size[0], y1), (0, 255, 0), -1)
+            cv2.putText(result_frame, label, (x1, y1 - 5), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+            
+            # Dibujar keypoints si están disponibles
+            if keypoints is not None:
+                for kpt in keypoints:
+                    x, y, conf = kpt
+                    if conf > 0.5:  # Solo dibujar keypoints con alta confianza
+                        cv2.circle(result_frame, (int(x), int(y)), 3, (0, 0, 255), -1)
+        
+        return result_frame
+
     
     def run_real_time_detection(self, camera_index: int = 0) -> None:
         """Ejecuta detección en tiempo real usando la cámara.
