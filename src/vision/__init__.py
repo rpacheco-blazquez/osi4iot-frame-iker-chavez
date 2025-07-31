@@ -1,0 +1,1 @@
+# Módulo de visión y detección

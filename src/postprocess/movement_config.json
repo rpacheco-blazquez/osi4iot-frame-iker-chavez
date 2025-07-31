@@ -1,0 +1,23 @@
+{
+  "movement_detection": {
+    "distance_threshold_cm": 0.5,
+    "velocity_threshold_cm_s": 0.2,
+    "position_stability_frames": 5,
+    "temporal_window_seconds": 2.0,
+    "position_noise_threshold_px": 2.0,
+    "distance_noise_threshold_cm": 0.3,
+    "min_time_between_sends_ms": 500
+  },
+  "mqtt_filtering": {
+    "enable_movement_detection": true,
+    "enable_velocity_filter": true,
+    "enable_stability_filter": true,
+    "enable_relative_movement_filter": true,
+    "enable_temporal_filter": true
+  },
+  "debug": {
+    "log_movement_metrics": true,
+    "log_filtered_attempts": false,
+    "save_movement_history": false
+  }
+}

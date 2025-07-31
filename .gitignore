@@ -99,6 +99,9 @@ Thumbs.db
 dicapua_stats_*.json
 dicapua_monitor.log
 
+# Archivos JSON de configuración temporal
+# movement_config.json  # Comentado para permitir este archivo necesario
+
 # Archivos de configuración local
 config/local_*.yaml
 config/dev_*.yaml
@@ -110,9 +113,6 @@ config/dev_*.yaml
 *.gif
 *.bmp
 !models/*.pt
-
-# Archivos JSON de configuración temporal
-movement_config.json
 
 # Archivos UI temporales
 ui/*.ui
