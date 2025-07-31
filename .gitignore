@@ -60,7 +60,6 @@ data/raw/
 test_*.py
 *_test.py
 *test*.py
-run_*.py
 verify_*.py
 monitor_*.py
 integration_example.py
