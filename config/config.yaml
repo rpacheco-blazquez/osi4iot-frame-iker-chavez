@@ -1,0 +1,48 @@
+# Configuración del proyecto Digital Twin
+project:
+  name: "Digital Twin Gantry Project"
+  version: "1.0.0"
+  description: "Sistema de gemelo digital para análisis de fuerzas y movimiento"
+
+# Configuración de visión por computadora
+vision:
+  yolo_model_path: "models/best.pt"
+  confidence_threshold: 0.3  
+  tracking_enabled: true
+  video_source: 0  
+
+# Configuración de física
+physics:
+  gravity: 9.81
+  mass_default: 1.0
+  force_calculation_frequency: 30  # Hz
+
+# Configuración de comunicación
+communication:
+  mqtt:
+    broker: "localhost"
+    port: 1883
+    topics:
+      forces: "gantry/forces"
+      position: "gantry/position"
+      status: "gantry/status"
+      distance: "gantry/distance"
+
+# Configuración de visualización
+visualization:
+  update_frequency: 25
+  3d_enabled: true
+  real_time_plots: true
+
+# Configuración de datos
+data:
+  log_level: "INFO"
+  save_raw_data: true
+  save_processed_data: true
+  data_retention_days: 30
+
+# Configuración de la interfaz
+ui:
+  theme: "dark"
+  language: "es"
+  auto_start: false

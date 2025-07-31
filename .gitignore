@@ -1,0 +1,125 @@
+# ============================================================================
+# .gitignore para Proyecto Pórtico IoT - Solo Producto Final
+# ============================================================================
+
+# Entornos virtuales de Python
+.venv/
+venv/
+env/
+ENV/
+
+# Directorio Trae AI
+.trae/
+
+# Configuraciones sensibles de MQTT/IoT
+src/mqtt/config/dicapuaiot/
+dicapuaiot/
+*.secrets
+*.key
+*.crt
+*.pem
+
+# Archivos de Python compilados
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribución / empaquetado
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Logs y datos temporales
+*.log
+data/logs/
+data/processed/
+data/raw/
+*.tmp
+*.temp
+
+# Archivos de test y desarrollo
+test_*.py
+*_test.py
+*test*.py
+run_*.py
+verify_*.py
+monitor_*.py
+integration_example.py
+robust_*.py
+mqtt_connection_report.py
+
+# Archivos de documentación de desarrollo
+*README*.md
+!README.md
+COORDINATE_SYSTEM_README.md
+CAMBIOS_*.md
+MODIFICACION_*.md
+LINEA_*.md
+
+# Archivos de configuración de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos del sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Archivos de backup
+*.backup
+*.bak
+*.orig
+
+# Archivos de estadísticas y monitoreo
+dicapua_stats_*.json
+dicapua_monitor.log
+
+# Archivos de configuración local
+config/local_*.yaml
+config/dev_*.yaml
+
+# Archivos de imagen de test
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+!models/*.pt
+
+# Archivos JSON de configuración temporal
+movement_config.json
+
+# Archivos UI temporales
+ui/*.ui
+
+# Vercel
+.vercel/
+
+# Archivos específicos que NO deben subirse
+src/mqtt/config/__pycache__/credentials.cpython-312.pyc
