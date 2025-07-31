@@ -1,5 +1,5 @@
 # ============================================================================
-# .gitignore para Proyecto Pórtico IoT - Solo Producto Final
+# .gitignore para Proyecto Pórtico IoT
 # ============================================================================
 
 # Entornos virtuales de Python
@@ -8,7 +8,6 @@ venv/
 env/
 ENV/
 
-# Directorio Trae AI
 .trae/
 
 # Configuraciones sensibles de MQTT/IoT
@@ -117,7 +116,6 @@ config/dev_*.yaml
 # Archivos UI temporales
 ui/*.ui
 
-# Vercel
 .vercel/
 
 # Archivos específicos que NO deben subirse
