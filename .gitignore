@@ -61,6 +61,7 @@ mqtt_connection_report.py
 # Archivos de documentación de desarrollo
 *README*.md
 !README.md
+!REQUIREMENTS_README.md
 COORDINATE_SYSTEM_README.md
 CAMBIOS_*.md
 MODIFICACION_*.md
