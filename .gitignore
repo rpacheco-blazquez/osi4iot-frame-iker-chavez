@@ -49,14 +49,14 @@ MANIFEST
 *.temp
 
 # Archivos de test y desarrollo
-# test_*.py
-# *_test.py
-# *test*.py
-# verify_*.py
-# monitor_*.py
-# integration_example.py
-# robust_*.py
-# mqtt_connection_report.py
+test_*.py
+*_test.py
+*test*.py
+verify_*.py
+monitor_*.py
+integration_example.py
+robust_*.py
+mqtt_connection_report.py
 
 # Archivos de documentación de desarrollo
 *README*.md
