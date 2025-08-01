@@ -64,19 +64,6 @@ sphinx-rtd-theme==1.3.0
 dataclasses-json==0.5.14  # Para serialización de dataclasses
 typing-extensions==4.7.1  # Para compatibilidad de tipos
 
-# Opcional: Para análisis avanzado
-# jupyter==1.0.0
-# notebook==7.0.2
-# ipywidgets==8.0.7
-
-# Opcional: Para deployment
-# docker==6.1.3
-# gunicorn==21.2.0
-
-# Opcional: Para base de datos
-# sqlalchemy==2.0.19
-# sqlite3  # Incluido en Python estándar
-
 # Dependencias específicas del sistema (instalar según necesidad)
 # Para Windows:
 # pywin32==306
