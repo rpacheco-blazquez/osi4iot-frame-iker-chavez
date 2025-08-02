@@ -1,5 +1,7 @@
 # 🏗️ Digital Twin del Pórtico - Gemelo Digital OSI4IoT
 
+![Demo](docs/media/FEM_Sx.mp4)
+
 ## 📋 Descripción del Proyecto
 
 Este proyecto implementa un **gemelo digital** para un sistema de pórtico grúa, integrando visión por computador con YOLO v8, análisis físico en tiempo real, comunicación IoT y visualización interactiva. El sistema permite monitorear, analizar las cargas aplicadas en un pórtico mediante técnicas de inteligencia artificial, detección de movimiento y comunicación con plataformas IoT externas.
