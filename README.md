@@ -2,7 +2,7 @@
 
 ## 📋 Descripción del Proyecto
 
-Este proyecto implementa un **gemelo digital avanzado** para un sistema de pórtico grúa, integrando visión por computador con YOLO v8, análisis físico en tiempo real, comunicación IoT bidireccional y visualización interactiva. El sistema permite monitorear, analizar y predecir el comportamiento de cargas aplicadas en un pórtico mediante técnicas de inteligencia artificial, detección de movimiento inteligente y comunicación con plataformas IoT externas.
+Este proyecto implementa un **gemelo digital** para un sistema de pórtico grúa, integrando visión por computador con YOLO v8, análisis físico en tiempo real, comunicación IoT y visualización interactiva. El sistema permite monitorear, analizar las cargas aplicadas en un pórtico mediante técnicas de inteligencia artificial, detección de movimiento y comunicación con plataformas IoT externas.
 
 ## 🎯 Características Principales
 
@@ -165,26 +165,20 @@ python src/gui/interactive_interface.py
 - ✅ Sistema multilingüe
 - ✅ Calibración automática
 
-### Sistema Principal (Detección Básica)
-
-```bash
-# Ejecutar solo detección y tracking básico
-python src/main.py
-
-# Con configuración personalizada
-python src/main.py --config mi_config.yaml
-```
 
 ### Pipeline Completo de Procesamiento
 
 ```bash
-# Ejecutar pipeline completo con todas las funcionalidades
-python src/run_pipeline.py
+# Ejecutar pipeline completo con todas las funcionalidades e interfaz
+python run_interface.py
 ```
 
 ### Scripts de Demostración
 
 ```bash
+# Demo de la interfaz y sistema integrado
+python run_interface.py
+
 # Demo del sistema de coordenadas
 python run_coordinate_axis_demo.py
 
@@ -306,22 +300,12 @@ ui:
 3. **Protocolos de comunicación**: Implementar en `mqtt/`
 4. **Idiomas**: Agregar archivos JSON en `locales/`
 
-### Testing y Validación
-
-```bash
-# Scripts de prueba disponibles
-python test_calculators_integration.py    # Prueba calculadores
-python test_dicapua_connection.py        # Prueba conexión IoT
-python verify_data_transmission.py       # Verifica transmisión
-python monitor_dicapua_connection.py     # Monitoreo continuo
-```
-
 ## 📈 Monitoreo y Métricas
 
 ### Métricas del Sistema
 - **FPS**: Frames por segundo procesados (objetivo: >25 FPS)
 - **Latencia**: Tiempo de procesamiento por frame (<50ms)
-- **Precisión**: Accuracy de detección YOLO (>90%)
+- **Precisión**: Accuracy de detección Ultralytics YOLO v8 (>90%)
 - **Conectividad IoT**: Estado de conexión DicapuaIoT
 - **Memoria**: Uso de RAM y GPU optimizado
 
@@ -335,8 +319,6 @@ tail -f data/logs/InteractiveInterface_$(date +%Y%m%d).log
 grep "ERROR" data/logs/*.log
 grep "WARNING" data/logs/*.log
 
-# Monitoreo de conexión DicapuaIoT
-python monitor_dicapua_connection.py
 ```
 
 ## 🚨 Solución de Problemas
@@ -359,7 +341,7 @@ python monitor_dicapua_connection.py
    - Revisar logs de inicialización
 
 4. **Conexión DicapuaIoT falla**
-   - Verificar credenciales en `src/mqtt/config/dicapuaiot/`
+   - Verificar credenciales en `src/mqtt/config/<CREDENCIALES>/`
    - Comprobar conectividad de red
    - Revisar configuración del broker
 
@@ -380,26 +362,6 @@ data:
   log_level: "DEBUG"
 ```
 
-## 🤝 Contribución
-
-### Proceso de Contribución
-
-1. Fork del proyecto
-2. Crear rama para feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Implementar cambios siguiendo estándares
-4. Agregar tests si es necesario
-5. Commit cambios (`git commit -am 'Agregar nueva funcionalidad'`)
-6. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-7. Crear Pull Request con descripción detallada
-
-### Estándares de Código
-
-- **Formato**: Black para Python, líneas máximo 100 caracteres
-- **Linting**: Flake8 para verificación de estilo
-- **Documentación**: Docstrings en español con formato Google
-- **Tests**: Scripts de prueba para nuevas funcionalidades
-- **Commits**: Mensajes descriptivos en español
-
 ### Áreas de Contribución
 
 - 🔍 Mejoras en algoritmos de detección
@@ -408,33 +370,23 @@ data:
 - 📊 Nuevas métricas y visualizaciones
 - 🌍 Traducciones a otros idiomas
 
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detalles.
-
 ## 👥 Autores y Reconocimientos
 
-- **Equipo de Desarrollo**: Proyecto OSI4IoT Gantry
+- **Equipo de Desarrollo**: Rafael Pachecho-Blazquez, Daniel Di Capua, Iker Chávez Bragulat.
 - **Institución**: CIMNE - Centro Internacional de Métodos Numéricos en Ingeniería
 - **Proyecto**: Sistema de Gemelo Digital para Pórtico Grúa
-- **Tecnologías**: YOLO v8, OpenCV, MQTT, DicapuaIoT, Python
-
-### Agradecimientos Especiales
-
-- Comunidad YOLO por el modelo de detección de pose
-- Proyecto OSI4IoT por la plataforma de comunicación
-- CIMNE por el soporte institucional y recursos
+- **Tecnologías**: YOLO v8, OpenCV, Python, Ultralytics
 
 ## 📞 Soporte y Contacto
 
 - **Issues**: Reportar problemas en el repositorio GitHub
 - **Documentación**: README y comentarios en código
-- **Email**: Contacto institucional CIMNE
-- **Wiki**: Documentación técnica detallada
+- **Email**: ikerchavez2304@gmail.com
+
 
 ## 🔄 Changelog
 
-### v2.0.0 (2024-01-15) - Versión Actual
+### v2.0.0 (31-07-2025) - Versión Actual
 - ✅ **Interfaz interactiva completa** con controles en tiempo real
 - ✅ **Calculadores de distancia avanzados** con filtros Kalman
 - ✅ **Comunicación directa DicapuaIoT** sin broker local
@@ -446,23 +398,15 @@ Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detall
 - ✅ **Sistema de coordenadas** configurable
 - ✅ **Logging avanzado** con rotación automática
 
-### v1.0.0 (2023-10-01) - Versión Base
+### v1.0.0 (09-07-2025) - Versión Base
 - ✅ Implementación inicial del sistema
 - ✅ Detección YOLO básica integrada
-- ✅ Cálculos físicos fundamentales
 - ✅ Comunicación MQTT básica
-- ✅ Visualización 2D/3D inicial
+- ✅ Visualización 2D/3D 
 - ✅ Pipeline de procesamiento base
 
-### Próximas Versiones (Roadmap)
-- 🔄 **v2.1.0**: Integración con bases de datos para históricos
-- 🔄 **v2.2.0**: API REST completa para integración externa
-- 🔄 **v3.0.0**: Machine Learning para predicción de movimientos
-- 🔄 **v3.1.0**: Interfaz web responsive
-- 🔄 **v4.0.0**: Deployment con Docker y Kubernetes
 
 ---
 
-**¡Gracias por usar el Digital Twin del Pórtico OSI4IoT!** 🚀
+**Fixed Gantry Digital Twin - OSI4IoT** 🚀
 
-*Sistema desarrollado con ❤️ para la industria 4.0 y el Internet de las Cosas Industrial*
