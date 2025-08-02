@@ -1,6 +1,6 @@
 # 🏗️ Digital Twin del Pórtico - Gemelo Digital OSI4IoT
 
-![Demo](https://youtu.be/JxjwwRL4Fd4)
+[![Demo](https://img.youtube.com/vi/JxjwwRL4Fd4/maxresdefault.jpg)](https://youtu.be/JxjwwRL4Fd4)
 
 ## 📋 Descripción del Proyecto
 
