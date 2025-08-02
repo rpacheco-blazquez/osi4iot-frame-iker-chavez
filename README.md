@@ -95,7 +95,6 @@ osi4iot-gantry-project/
 ### Prerrequisitos
 - Python 3.8 o superior
 - Cámara web o archivo de video para análisis
-- (Opcional) Conexión a plataforma DicapuaIoT para transmisión de datos
 - Sistema operativo: Windows, Linux o macOS
 
 ### Instalación
