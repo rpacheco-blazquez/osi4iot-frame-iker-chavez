@@ -48,6 +48,10 @@ MANIFEST
 *.tmp
 *.temp
 
+# Archivos de monitoreo y diagnóstico MQTT
+mqtt_connection_report.py
+monitor_dicapua_connection.py
+
 # Archivos de test y desarrollo
 test_*.py
 *_test.py
