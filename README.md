@@ -623,17 +623,6 @@ grep "INFO" data/logs/*.log
 - **Estado de Conexión**: MQTT, cámara, modelo YOLO
 - **Logs de Sistema**: Errores, advertencias, información de debug
 
-## 🤝 Contribución y Desarrollo Colaborativo
-
-### 📋 Guías de Contribución
-
-#### **Estándares de Código**
-- **Estilo**: PEP 8 con Black formatter
-- **Documentación**: Docstrings en formato Google
-- **Testing**: Cobertura mínima del 80%
-- **Type Hints**: Obligatorio para funciones públicas
-
-
 ## 👥 Autores y Reconocimientos
 
 ### 🏛️ **Institución Principal**
@@ -673,8 +662,6 @@ grep "INFO" data/logs/*.log
 
 ### 🌐 **Enlaces Útiles**
 - **Repositorio**: [GitHub - OSI4IoT Gantry Project]
-- **Documentación**: [Wiki del Proyecto]
-- **Demos**: [YouTube - Digital Twin Demos]
 - **CIMNE**: [www.cimne.com]
 
 ### 📋 **Licencia y Uso**
@@ -711,7 +698,7 @@ grep "INFO" data/logs/*.log
 [![YOLO v8](https://img.shields.io/badge/YOLO-v8-green.svg)](https://github.com/ultralytics/ultralytics)
 [![MQTT](https://img.shields.io/badge/MQTT-IoT-orange.svg)](https://mqtt.org/)
 
-**Versión 1.0.0** | **Estado: Desarrollo** | **Última actualización: Enero 2025**
+**Versión 1.0.0** | **Estado: Desarrollo** | **Última actualización: Agosto 2025**
 
 </div>
 
