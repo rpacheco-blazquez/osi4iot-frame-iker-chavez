@@ -118,14 +118,11 @@ class CoordinateAxisDrawer:
         # Eje Z (positivo hacia abajo)
         z_end = (origin_x, origin_y + axis_length)
         
-        # Dibujar origen
         cv2.circle(frame_copy, (origin_x, origin_y), 3, self.origin_color, -1)
         
-        # Dibujar ejes con flechas
         self._draw_axis_arrow(frame_copy, (origin_x, origin_y), x_end, self.x_color)
         self._draw_axis_arrow(frame_copy, (origin_x, origin_y), z_end, self.z_color)
-        
-        # Añadir etiquetas de los ejes
+       
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 0.5
         
@@ -155,12 +152,10 @@ class CoordinateAxisDrawer:
                          frame_copy.shape[0] - self.margin - self.size - 20)
             rect_end = (frame_copy.shape[1] - self.margin, frame_copy.shape[0] - self.margin)
         
-        # Dibujar rectángulo semitransparente
         cv2.rectangle(overlay, rect_start, rect_end, (0, 0, 0), -1)
-        alpha = 0.3  # Transparencia
+        alpha = 0.3  
         cv2.addWeighted(overlay, alpha, frame_copy, 1 - alpha, 0, frame_copy)
         
-        # Redibujar ejes y etiquetas sobre el fondo
         cv2.circle(frame_copy, (origin_x, origin_y), 3, self.origin_color, -1)
         self._draw_axis_arrow(frame_copy, (origin_x, origin_y), x_end, self.x_color)
         self._draw_axis_arrow(frame_copy, (origin_x, origin_y), z_end, self.z_color)

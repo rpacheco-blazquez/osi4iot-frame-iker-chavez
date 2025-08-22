@@ -64,7 +64,7 @@ robust_*.py
 mqtt_connection_report.py
 
 # Archivos de documentación de desarrollo
-*README*.md
+postp_*.md
 !README.md
 !REQUIREMENTS_README.md
 COORDINATE_SYSTEM_README.md

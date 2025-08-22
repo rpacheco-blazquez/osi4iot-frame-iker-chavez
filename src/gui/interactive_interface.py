@@ -57,14 +57,14 @@ class InteractiveDetectionInterface:
         # Crear calculadores con comunicación directa
         self.distance_calculator = DistanceCalculator(
             pixels_per_cm=10.0,
-            enable_mqtt=True,  # Habilitar para comunicación directa
-            dicapua_publisher=self.dicapua_publisher,  # Pasar referencia
+            enable_mqtt=True,
+            dicapua_publisher=self.dicapua_publisher,  
             config_path=config_path
         )
         self.marker_distance_calculator = MarkerDistanceCalculator(
             pixels_per_cm=10.0,
-            enable_mqtt=True,  # Habilitar para comunicación directa
-            dicapua_publisher=self.dicapua_publisher,  # Pasar referencia
+            enable_mqtt=True,  
+            dicapua_publisher=self.dicapua_publisher, 
             config_path=config_path
         )
         

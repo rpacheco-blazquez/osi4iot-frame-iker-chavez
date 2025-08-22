@@ -266,7 +266,6 @@ class DicapuaPublisher:
                 print(f"⚠️ buttonX fuera de rango: {button_x} (debe estar entre 0 y 1000)")
                 return False
             
-            # Diagnóstico adicional para valores sospechosos
             if marker_z == 0 and button_x == 0:
                 print(f"⚠️ Ambos valores son 0: markerZ={marker_z}, buttonX={button_x} - posible problema de detección")
                 return False
@@ -289,18 +288,16 @@ class DicapuaPublisher:
             self.logger.warning("No conectado al broker DicapuaIoT")
             return False
         
-        # Control de umbral para evitar spam
         current_time = time.time()
         if current_time - self.last_publish_time < self.publish_threshold:
             return False
         
         try:
-            # Generar timestamp en formato UTC con microsegundos
+    
             now_utc = datetime.datetime.now()
             mlsec = repr(now_utc).split(",")[-1][-7:-1].replace(" ", "0")
             timestamp = now_utc.strftime("%Y-%m-%dT%H:%M:%S.{}Z".format(mlsec))
             
-            # Usar la distancia como valor por defecto si marker_value es None
             marker_val = marker_value if marker_value is not None else distancia
         
             payload = {
@@ -326,7 +323,6 @@ class DicapuaPublisher:
                 return False
                 
         except Exception as e:
-            # Manejo de errores siguiendo el formato original
             now_utc = datetime.datetime.now()
             mlsec = repr(now_utc).split(",")[-1][-7:-1].replace(" ", "0")
             timestamp = now_utc.strftime("%Y-%m-%dT%H:%M:%S.{}Z".format(mlsec))
@@ -360,7 +356,6 @@ class DicapuaPublisher:
     
     def stop_client(self) -> None:
         """Detiene ambos clientes MQTT"""
-        # Detener reconexión automática
         self.should_reconnect = False
         
         if self.dicapua_client:
@@ -375,7 +370,6 @@ class DicapuaPublisher:
             self.local_connected = False
             self.logger.info("🔌 Cliente MQTT local detenido")
         
-        # Esperar a que termine el hilo de reconexión
         if self.reconnect_thread and self.reconnect_thread.is_alive():
             self.reconnect_thread.join(timeout=2)
     
@@ -501,7 +495,7 @@ class DicapuaPublisher:
             
             # Esperar antes del siguiente intento
             if attempt < retries - 1:
-                wait_time = 2 ** attempt  # Backoff exponencial
+                wait_time = 2 ** attempt 
                 self.logger.info(f"⏳ Esperando {wait_time}s antes del siguiente intento...")
                 time.sleep(wait_time)
         
