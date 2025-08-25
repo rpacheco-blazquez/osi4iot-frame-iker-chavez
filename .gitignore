@@ -7,6 +7,8 @@
 
 .trae/
 
+*.tex
+
 # Configuraciones sensibles de MQTT/IoT
 src/mqtt/config/dicapuaiot/
 dicapuaiot/
