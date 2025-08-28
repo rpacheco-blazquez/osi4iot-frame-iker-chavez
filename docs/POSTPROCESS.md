@@ -51,7 +51,9 @@ Implementa el cálculo de distancias entre el pulsador y el pórtico con calibra
 
 La distancia fundamental entre dos puntos se calcula usando:
 
-$$d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$$
+```math
+d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}
+```
 
 Donde $(x_1, y_1)$ y $(x_2, y_2)$ son las coordenadas de los puntos en el espacio de la imagen.
 
@@ -59,11 +61,15 @@ Donde $(x_1, y_1)$ y $(x_2, y_2)$ son las coordenadas de los puntos en el espaci
 
 El sistema utiliza la distancia conocida (modelo real) entre keypoints verticales C y B de la clase pórtico (21 cm) para calibrar automáticamente:
 
-$$\text{pixels\_per\_cm} = \frac{d_{pixels}(C, B)}{21.0 \text{ cm}}$$
+```math
+\text{pixels\_per\_cm} = \frac{d_{pixels}(C, B)}{21.0 \text{ cm}}
+```
 
 **Calibración con Promedio Ponderado:**
 
-$$\text{calibration}_{final} = \frac{\sum_{i=1}^{n} w_i \cdot c_i}{\sum_{i=1}^{n} w_i}$$
+```math
+\text{calibration}_{final} = \frac{\sum_{i=1}^{n} w_i \cdot c_i}{\sum_{i=1}^{n} w_i}
+```
 
 Donde:
 - $n$ es el número de calibraciones.
@@ -76,7 +82,9 @@ Donde:
 
 **Modelo de Estado:**
 
-$$\mathbf{x}_k = \begin{bmatrix} x \\ y \\ \dot{x} \\ \dot{y} \end{bmatrix}_k$$
+```math
+\mathbf{x}_k = \begin{bmatrix} x \\ y \\ \dot{x} \\ \dot{y} \end{bmatrix}_k
+```
 
 Significa que en cada instante $k$ se están modelando 4 variables:  
 - $x$: posición horizontal del keypoint en la imagen (en píxeles).
@@ -135,12 +143,14 @@ def _filter_keypoint(self, keypoint: Tuple[float, float, float], keypoint_id: st
 
 **Matriz de Transición:**
 
-$$\mathbf{F} = \begin{bmatrix}
+```math
+\mathbf{F} = \begin{bmatrix}
 1 & 0 & 1 & 0 \\
 0 & 1 & 0 & 1 \\
 0 & 0 & 1 & 0 \\
 0 & 0 & 0 & 1
-\end{bmatrix}$$
+\end{bmatrix}
+```
 
 La matriz de transición ($\mathbf{F}$)describe cómo evoluciona el estado del sistema a lo largo del tiempo. En este caso, el estado se define como $(x, y, \dot{x}, \dot{y})$.
 
@@ -148,10 +158,12 @@ Es decir, dicha matriz modela un movimiento constante. Si no llegara nueva medic
 
 **Matriz de Observación:**
 
-$$\mathbf{H} = \begin{bmatrix}
+```math
+\mathbf{H} = \begin{bmatrix}
 1 & 0 & 0 & 0 \\
 0 & 1 & 0 & 0
-\end{bmatrix}$$
+\end{bmatrix}
+```
 
 La matriz de observación ($\mathbf{H}$) describe cómo se relaciona el estado del sistema con las mediciones observables. En este caso, solo se observa la posición $(x, y)$ del keypoint, por lo que la matriz es:
 
@@ -162,9 +174,9 @@ La matriz de observación ($\mathbf{H}$) describe cómo se relaciona el estado d
 
 Verifica que los keypoints del pórtico mantengan las proporciones correctas:
 
-$$
+```math
 \text{ratio} = \frac{d(D,C)}{d(C,B)} \approx \frac{30.0 \text{ cm}}{21.0 \text{ cm}} = 1.429
-$$
+```
 
 *Donde:*
 - $d(D,C)$ es la distancia real conocida entre los keypoints $D$ y $C$.
@@ -204,18 +216,18 @@ def _validate_rectangle_geometry(self, keypoints: List[Tuple[float, float, float
 ```
 
 **Criterio de Validación:**
-$$
+```math
 \text{error} = \frac{|\text{ratio}_{observed} - \text{ratio}_{expected}|}{\text{ratio}_{expected}} < 0.15
-$$
+```
 
 #### 1.5 Corrección Geométrica por Mínimos Cuadrados
 
 Cuando la geometría no es válida, se aplica optimización:
 
 **Función Objetivo:**
-$$
+```math
 \min_{\mathbf{p}} \sum_{i=1}^{4} w_i \|\mathbf{r}_i - \mathbf{r}_i^{ideal}(\mathbf{p})\|^2
-$$
+```
 
 La función objetivo minimiza la suma de los errores cuadráticos ponderados entre los puntos detectados $\mathbf{r}_i$ y los puntos ideales $\mathbf{r}_i^{ideal}(\mathbf{p})$. Ajusta los parámetros $\mathbf{p}$ para que los puntos ideales generados por el modelo se aproximen lo más posible a los puntos detectados, teniendo en cuenta la importancia relativa de cada punto mediante los pesos $w_i$.
 
@@ -294,7 +306,9 @@ def _correct_keypoints_geometry(self, keypoints: List[Tuple[float, float, float]
 
 **Posiciones Ideales del Rectángulo:**
 
-$$\mathbf{r}_A = \begin{bmatrix} c_x - \frac{w}{2}\cos\theta + \frac{h}{2}\sin\theta \\ c_y - \frac{w}{2}\sin\theta - \frac{h}{2}\cos\theta \end{bmatrix}$$
+```math
+\mathbf{r}_A = \begin{bmatrix} c_x - \frac{w}{2}\cos\theta + \frac{h}{2}\sin\theta \\ c_y - \frac{w}{2}\sin\theta - \frac{h}{2}\cos\theta \end{bmatrix}
+```
 
 Dicha matriz $\mathbf{r}_A$ define la posición ideal del vértice A de un rectángulo en coordenadas 2D. 
 
@@ -307,7 +321,9 @@ Donde:
 
 #### Suavizado Exponencial
 
-$$\mathbf{p}_{smooth} = \frac{\sum_{i=1}^{n} e^{-\alpha(n-i)} \mathbf{p}_i}{\sum_{i=1}^{n} e^{-\alpha(n-i)}}$$
+```math
+\mathbf{p}_{smooth} = \frac{\sum_{i=1}^{n} e^{-\alpha(n-i)} \mathbf{p}_i}{\sum_{i=1}^{n} e^{-\alpha(n-i)}}
+```
 
 Se trata de un filtro temporal para suavizar los parámetros $\mathbf{p}$ del rectángulo. 
 
@@ -326,17 +342,23 @@ Calcula la distancia entre el punto medio superior de la bounding box de la clas
 
 #### 2.1 Cálculo del Centroide de Keypoints
 
-$$\mathbf{c} = \frac{1}{n} \sum_{i=1}^{n} \mathbf{k}_i$$
+```math
+\mathbf{c} = \frac{1}{n} \sum_{i=1}^{n} \mathbf{k}_i
+```
 
 Donde:
 - $\mathbf{k}_i$ son los keypoints válidos (confianza > 0.5).
-$$\mathbf{k}_i = \begin{bmatrix} x_i \\ y_i \\ c_i\end{bmatrix}$$
+```math
+\mathbf{k}_i = \begin{bmatrix} x_i \\ y_i \\ c_i\end{bmatrix}
+```
 - $n$ es el número de keypoints válidos.
 
 #### 2.2 Punto Medio Superior de la Bounding Box
 
 
-$$\mathbf{p}_{top} = \begin{bmatrix} \frac{x_1 + x_2}{2} \\ y_1 \end{bmatrix}$$
+```math
+\mathbf{p}_{top} = \begin{bmatrix} \frac{x_1 + x_2}{2} \\ y_1 \end{bmatrix}
+```
 
 Donde $(x_1, y_1, x_2, y_2)$ define la bounding box.
 
@@ -344,7 +366,9 @@ Donde $(x_1, y_1, x_2, y_2)$ define la bounding box.
 
 Se aplica un factor de corrección específico para el marcador:
 
-$$d_{corrected} = \max(0, d_{raw} - 0.9 \text{ cm})$$
+```math
+d_{corrected} = \max(0, d_{raw} - 0.9 \text{ cm})
+```
 
 Dicho ajuste compensa el muelle provisional del sistema mecánico.
 
@@ -362,7 +386,9 @@ Implementa filtrado inteligente para evitar transmisiones MQTT innecesarias, ana
 
 La siguiente ecuación permite calcular cuánto se ha movido el punto entre dos frames:
 
-$$v_i = \frac{\|\mathbf{p}_{i+1} - \mathbf{p}_i\|}{t_{i+1} - t_i}$$
+```math
+v_i = \frac{\|\mathbf{p}_{i+1} - \mathbf{p}_i\|}{t_{i+1} - t_i}
+```
 
 Donde:
 - $\mathbf{p}_{i+1}$ y $\mathbf{p}_i$ son las posiciones del punto en los frames $i+1$ e $i$, respectivamente.
@@ -370,7 +396,9 @@ Donde:
 
 **Velocidad Promedio en Ventana Temporal:**
 
-$$\bar{v} = \frac{1}{n-1} \sum_{i=1}^{n-1} v_i$$
+```math
+\bar{v} = \frac{1}{n-1} \sum_{i=1}^{n-1} v_i
+```
 
 - Se promedian las velocidades instantáneas de los últimos $n$ frames.
 - Esto suaviza los picos y da una medida más estable del movimiento.
@@ -378,7 +406,9 @@ $$\bar{v} = \frac{1}{n-1} \sum_{i=1}^{n-1} v_i$$
 
 **Desviación Estándar de Posiciones:**
 
-$$\sigma_{pos} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} \|\mathbf{p}_i - \bar{\mathbf{p}}\|^2}$$
+```math
+\sigma_{pos} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} \|\mathbf{p}_i - \bar{\mathbf{p}}\|^2}
+```
 
 Donde: 
 - $\mathbf{p}_i$: posiciones observadas en los últimos $n$ frames.
@@ -458,13 +488,17 @@ def calculate_velocity(self, positions: Deque[Tuple[float, float, float]]) -> fl
 
 **Criterio de Estabilidad:**
 
-$$\text{stable} = (\sigma_{pos} < \sigma_{threshold}) \land (\bar{v} < v_{threshold})$$
+```math
+\text{stable} = (\sigma_{pos} < \sigma_{threshold}) \land (\bar{v} < v_{threshold})
+```
 
 #### 3.3 Filtros de Movimiento
 
 **Filtro de Umbral de Distancia:**
 
-$$\text{send} = |d_{current} - d_{last}| > \Delta d_{threshold}$$
+```math
+\text{send} = |d_{current} - d_{last}| > \Delta d_{threshold}
+```
 
 Donde:
 - $d_{current}$: posición/medida actual.
@@ -477,7 +511,9 @@ Es decir, solo se envía si la diferencia supera un umbral.
 
 **Filtro de Velocidad:**
 
-$$\text{send} = \bar{v} > v_{threshold}$$
+```math
+\text{send} = \bar{v} > v_{threshold}
+```
 
 Donde: 
 - $\bar{v}$: velocidad promedio en la ventana de tiempo.
@@ -489,7 +525,9 @@ Por lo tanto, si el objeto se mueve más rápido de lo esperado, se considera mo
 
 **Filtro Temporal:**
 
-$$\text{send} = (t_{current} - t_{last\_send}) > \Delta t_{min}$$
+```math
+\text{send} = (t_{current} - t_{last\_send}) > \Delta t_{min}
+```
 
 Donde: 
 - $t_{current}$: tiempo actual.
@@ -500,7 +538,9 @@ Se evita mandar mensajes demasiado seguido.
 
 #### 3.4 Algoritmo de Decisión Combinado
 
-$$\text{should\_send} = \bigwedge_{i} \text{filter}_i \land \text{movement\_detected}$$
+```math
+\text{should\_send} = \bigwedge_{i} \text{filter}_i \land \text{movement\_detected}
+```
 
 **Implementación Práctica:**
 
@@ -592,7 +632,9 @@ Implementa un sistema de referencia visual para orientación espacial en las im�
 
 **Esquina Inferior Derecha (por defecto):**
 
-$$\mathbf{o} = \begin{bmatrix} w - m - \frac{s}{2} \\ h - m - \frac{s}{2} \end{bmatrix}$$
+```math
+\mathbf{o} = \begin{bmatrix} w - m - \frac{s}{2} \\ h - m - \frac{s}{2} \end{bmatrix}
+```
 
 Donde $w$ y $h$ son las dimensiones de la imagen, $m$ es el margen y $s$ es el tamaño del sistema.
 
@@ -600,17 +642,23 @@ Donde $w$ y $h$ son las dimensiones de la imagen, $m$ es el margen y $s$ es el t
 
 **Eje X (positivo hacia la derecha):**
 
-$$\mathbf{v}_x = \begin{bmatrix} \frac{s}{2} \\ 0 \end{bmatrix}$$
+```math
+\mathbf{v}_x = \begin{bmatrix} \frac{s}{2} \\ 0 \end{bmatrix}
+```
 
 **Eje Z (positivo hacia abajo):**
 
-$$\mathbf{v}_z = \begin{bmatrix} 0 \\ \frac{s}{2} \end{bmatrix}$$
+```math
+\mathbf{v}_z = \begin{bmatrix} 0 \\ \frac{s}{2} \end{bmatrix}
+```
 
 #### 4.3 Generación de Flechas
 
 **Cálculo del Ángulo:**
 
-$$\theta = \arctan2(\Delta y, \Delta x)$$
+```math
+\theta = \arctan2(\Delta y, \Delta x)
+```
 
 **Implementación Práctica:**
 
@@ -672,11 +720,13 @@ def _calculate_origin_position(self, frame_shape: Tuple[int, int]) -> Tuple[int,
 
 **Puntas de Flecha:**
 
-$$\mathbf{p}_1 = \mathbf{end} - L \begin{bmatrix} \cos(\theta - \frac{\pi}{6}) \\ \sin(\theta - \frac{\pi}{6}) \end{bmatrix}
-$$
-$$
+```math
+\mathbf{p}_1 = \mathbf{end} - L \begin{bmatrix} \cos(\theta - \frac{\pi}{6}) \\ \sin(\theta - \frac{\pi}{6}) \end{bmatrix}
+```
+
+```math
 \mathbf{p}_2 = \mathbf{end} - L \begin{bmatrix} \cos(\theta + \frac{\pi}{6}) \\ \sin(\theta + \frac{\pi}{6}) \end{bmatrix}
-$$
+```
 
 Donde $L$ es la longitud de las puntas (8 píxeles).
 
@@ -795,62 +845,62 @@ def run_real_time_processing(self, window_name: str = "Postprocesamiento - Dista
 #### Filtro de Kalman
 Basado en la teoría de estimación óptima bayesiana, minimiza el error cuadrático medio:
 
-$$
+```math
 \min E[\|\mathbf{x} - \hat{\mathbf{x}}\|^2]
-$$
+```
 
 #### Estimación de Máxima Verosimilitud
 Para la calibración automática:
 
-$$
+```math
 \hat{\theta}_{MLE} = \arg\max_{\theta} \prod_{i=1}^{n} p(x_i | \theta)
-$$
+```
 
 ### 2. Geometría Proyectiva
 
 #### Transformación de Coordenadas
 De píxeles a coordenadas del mundo real:
 
-$$
+```math
 \begin{bmatrix} X \\ Y \\ Z \end{bmatrix} = \mathbf{K}^{-1} \begin{bmatrix} u \\ v \\ 1 \end{bmatrix} \cdot d
-$$
+```
 
 Donde $\mathbf{K}$ es la matriz de calibración intrínseca y $d$ es la profundidad.
 
 #### Corrección de Distorsión
-$$
+```math
 \mathbf{p}_{corrected} = \mathbf{p}_{distorted} + \mathbf{f}(\mathbf{p}_{distorted}, \mathbf{k})
-$$
+```
 
 ### 3. Procesamiento de Señales
 
 #### Filtrado Pasa-Bajas
 Para suavizado temporal:
 
-$$
+```math
 y[n] = \alpha x[n] + (1-\alpha) y[n-1]
-$$
+```
 
 #### Análisis Espectral
 Detección de frecuencias de ruido:
 
-$$
+```math
 X(\omega) = \int_{-\infty}^{\infty} x(t) e^{-j\omega t} dt
-$$
+```
 
 ### 4. Optimización Numérica
 
 #### Método de Levenberg-Marquardt
 Para corrección geométrica:
 
-$$
+```math
 (\mathbf{J}^T\mathbf{J} + \lambda\mathbf{I})\mathbf{h} = -\mathbf{J}^T\mathbf{f}
-$$
+```
 
 #### Descenso de Gradiente
-$$
+```math
 \mathbf{x}_{k+1} = \mathbf{x}_k - \alpha \nabla f(\mathbf{x}_k)
-$$
+```
 
 ## Configuración y Parámetros
 
@@ -932,24 +982,24 @@ Cadena de filtros de movimiento aplicados secuencialmente.
 ## Métricas de Calidad y Validación
 
 ### 1. Precisión de Calibración
-$$
+```math
 \text{Error}_{calibration} = \frac{|d_{measured} - d_{reference}|}{d_{reference}} \times 100\%
-$$
+```
 
 ### 2. Estabilidad de Filtrado
-$$
+```math
 \text{Stability} = 1 - \frac{\sigma_{filtered}}{\sigma_{raw}}
-$$
+```
 
 ### 3. Eficiencia de Comunicación
-$$
+```math
 \text{Efficiency} = 1 - \frac{\text{Messages Sent}}{\text{Total Calculations}}
-$$
+```
 
 ### 4. Latencia de Procesamiento
-$$
+```math
 \text{Latency}_{avg} = \frac{1}{n} \sum_{i=1}^{n} (t_{output,i} - t_{input,i})
-$$
+```
 
 ## Dependencias Técnicas
 
