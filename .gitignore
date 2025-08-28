@@ -9,6 +9,11 @@
 
 *.tex
 
+robust_*.py
+run_coordinates_*.py
+run_pose_*.py
+run_postprocess_*.py
+
 # Configuraciones sensibles de MQTT/IoT
 src/mqtt/config/dicapuaiot/
 dicapuaiot/
