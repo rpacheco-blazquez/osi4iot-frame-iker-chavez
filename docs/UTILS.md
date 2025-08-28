@@ -76,9 +76,9 @@ class LogEntry:
 
 #### 1.3 Formato de Timestamp
 
-$$
+```math
 \text{timestamp} = \text{ISO 8601: } YYYY-MM-DDTHH:mm:ss.ffffff
-$$
+```
 
 Utiliza microsegundos para garantizar unicidad en eventos de alta frecuencia.
 
@@ -272,9 +272,9 @@ Implementa algoritmos matemáticos para cálculos geométricos, estadísticos y 
 #### 4.1 Distancia Euclidiana 3D
 
 **Fórmula Matemática:**
-$$
+```math
 d(\mathbf{p}_1, \mathbf{p}_2) = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2 + (z_2-z_1)^2}
-$$
+```
 
 **Implementación:**
 ```python
@@ -287,9 +287,9 @@ def distance_3d(p1: Tuple[float, float, float],
 #### 4.2 Ángulo Entre Vectores
 
 **Fórmula del Producto Escalar:**
-$$
+```math
 \cos(\theta) = \frac{\mathbf{v}_1 \cdot \mathbf{v}_2}{\|\mathbf{v}_1\| \|\mathbf{v}_2\|}
-$$
+```
 
 **Implementación:**
 ```python
@@ -312,9 +312,9 @@ def angle_between_vectors(v1: Tuple[float, float, float],
 #### 4.3 Interpolación Lineal 3D
 
 **Fórmula Paramétrica:**
-$$
+```math
 \mathbf{p}(t) = (1-t)\mathbf{p}_1 + t\mathbf{p}_2, \quad t \in [0,1]
-$$
+```
 
 **Implementación:**
 ```python
@@ -334,9 +334,9 @@ def interpolate_linear(p1: Tuple[float, float, float],
 #### 4.4 Media Móvil:
 
 **Fórmula de Ventana Deslizante:**
-$$
+```math
 \bar{x}_i = \frac{1}{w} \sum_{j=i}^{i+w-1} x_j
-$$
+```
 
 Donde $w$ es el tamaño de la ventana.
 
@@ -359,9 +359,9 @@ def moving_average(data: List[float], window_size: int) -> List[float]:
 #### 4.5 Normalización de Vectores
 
 **Fórmula de Normalización:**
-$$
+```math
 \hat{\mathbf{v}} = \frac{\mathbf{v}}{\|\mathbf{v}\|}
-$$
+```
 
 **Implementación:**
 ```python
