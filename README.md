@@ -719,24 +719,6 @@ python scripts/log_analyzer.py --error --warning
 python scripts/resource_monitor.py --interval 1
 ```
 
-### 📝 Protocolo de Reporte de Errores
-
-1. **Recopilar información**:
-   - Logs relevantes (`data/logs/`)
-   - Configuración actual (`config.ini`)
-   - Datos de ejemplo (si aplica)
-
-2. **Ejecutar diagnóstico**:
-   ```bash
-   python scripts/system_diagnostic.py --report bug_report.html
-   ```
-
-3. **Incluir en reporte**:
-   - Descripción detallada del problema
-   - Pasos para reproducir
-   - Comportamiento esperado vs actual
-   - Capturas de pantalla/logs (si aplica)
-
 ### 📋 Logs y Monitoreo
 
 #### **Sistema de Logging**
