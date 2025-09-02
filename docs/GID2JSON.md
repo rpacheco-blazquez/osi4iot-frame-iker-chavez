@@ -149,12 +149,5 @@ Guarda la configuración utilizada:
 }
 ```
 
-## Integración en el Proyecto OSI4IoT
-
-### Rol en el Pipeline de Visualización
-
-
-
-
 ---
 

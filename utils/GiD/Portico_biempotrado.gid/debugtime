@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?><!-- -*- coding: utf-8; mode: SGML -*- -->
+<clock_report version='1.0'  date='2025-07-21 21:27:19'>
+  <variables>
+    <variable n='num_threads' v='16'/>
+    <variable n='metis_split' v='1'/>
+  </variables>
+  <!-- Time Table: cputime[s] (percent[%amp;]) Uses -->
+  <time n='Total time'                                    cpu='0.55235' percent='100.000' uses='1'>
+    <time n='ReadFromAscii'                                 cpu='0.01426' percent=' 2.582' uses='1'/>
+    <time n='Initialization calculation'                    cpu='0.01994' percent=' 3.610' uses='1'>
+      <time n='split METIS mesh'                              cpu='0.00554' percent='27.797' uses='1'/>
+    </time>
+    <time n='Calc'                                          cpu='0.51352' percent='92.969' uses='1'>
+      <time n='FillMatrixVectorAndSolve'                      cpu='0.43138' percent='84.005' uses='1'>
+        <time n='Add stiffness matrixes to global matrix'       cpu='0.01504' percent=' 3.487' uses='1'/>
+        <time n='Construct Load Vector'                         cpu='0.00532' percent=' 1.233' uses='1'/>
+        <time n='Apply constraints'                             cpu='0.00014' percent=' 0.032' uses='1'/>
+        <time n='Solver'                                        cpu='0.36230' percent='83.985' uses='1'/>
+      </time>
+      <time n='CalcLinearReactions'                           cpu='0.00238' percent=' 0.464' uses='1'/>
+      <time n='Strengths Calculation'                         cpu='0.01156' percent=' 2.251' uses='1'>
+        <time n='CalcStrengthsTrianglesDkt'                     cpu='0.01156' percent='99.975' uses='1'/>
+      </time>
+      <time n='Smooth'                                        cpu='0.01776' percent=' 3.459' uses='1'/>
+      <time n='Writing results'                               cpu='0.04982' percent=' 9.702' uses='1'/>
+    </time>
+  </time>
+</clock_report>

@@ -1,0 +1,17 @@
+{
+  "resultsOfInterest": [
+    "Displacements",
+    "Shells//Strengths//Shear//Qx'",
+    "Shells//Strengths//Shear//Qy'",
+    "Shells//Stresses//Top",
+    "Shells//Stresses//Bottom"
+  ],
+  "dictCompOfInterest": {
+    "Displacements": 4,
+    "Shells//Strengths//Shear//Qx'": 1,
+    "Shells//Strengths//Shear//Qy'": 1,
+    "Shells//Stresses//Top": 6,
+    "Shells//Stresses//Bottom": 6
+  },
+  "generatedAt": "2025-07-21T19:52:39.432Z"
+}

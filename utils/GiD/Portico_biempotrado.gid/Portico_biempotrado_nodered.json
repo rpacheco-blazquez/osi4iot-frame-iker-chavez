@@ -1,0 +1,97 @@
+{
+  "metadata": {
+    "totalModes": 10,
+    "generatedAt": "2025-07-21T19:52:40.412Z",
+    "sourceFiles": {
+      "mesh": "C:/Users/ikerc/Documents/CIMNE/Portico_biempotrado.gid/Portico_biempotrado.post.msh",
+      "results": "C:/Users/ikerc/Documents/CIMNE/Portico_biempotrado.gid/Portico_biempotrado.post.res"
+    }
+  },
+  "modeMapping": {
+    "Mode_1_1": 1,
+    "Mode_2_1": 2,
+    "Mode_3_1": 3,
+    "Mode_4_1": 4,
+    "Mode_5_1": 5,
+    "Mode_6_1": 6,
+    "Mode_7_1": 7,
+    "Mode_8_1": 8,
+    "Mode_9_1": 9,
+    "Mode_10_1": 10
+  },
+  "modeMetadata": {
+    "1": {
+      "originalMode": 1,
+      "increment": 1,
+      "modeString": "Mode_1",
+      "modeKey": "Mode_1_1"
+    },
+    "2": {
+      "originalMode": 2,
+      "increment": 1,
+      "modeString": "Mode_2",
+      "modeKey": "Mode_2_1"
+    },
+    "3": {
+      "originalMode": 3,
+      "increment": 1,
+      "modeString": "Mode_3",
+      "modeKey": "Mode_3_1"
+    },
+    "4": {
+      "originalMode": 4,
+      "increment": 1,
+      "modeString": "Mode_4",
+      "modeKey": "Mode_4_1"
+    },
+    "5": {
+      "originalMode": 5,
+      "increment": 1,
+      "modeString": "Mode_5",
+      "modeKey": "Mode_5_1"
+    },
+    "6": {
+      "originalMode": 6,
+      "increment": 1,
+      "modeString": "Mode_6",
+      "modeKey": "Mode_6_1"
+    },
+    "7": {
+      "originalMode": 7,
+      "increment": 1,
+      "modeString": "Mode_7",
+      "modeKey": "Mode_7_1"
+    },
+    "8": {
+      "originalMode": 8,
+      "increment": 1,
+      "modeString": "Mode_8",
+      "modeKey": "Mode_8_1"
+    },
+    "9": {
+      "originalMode": 9,
+      "increment": 1,
+      "modeString": "Mode_9",
+      "modeKey": "Mode_9_1"
+    },
+    "10": {
+      "originalMode": 10,
+      "increment": 1,
+      "modeString": "Mode_10",
+      "modeKey": "Mode_10_1"
+    }
+  },
+  "resultsOfInterest": [
+    "Displacements",
+    "Shells//Strengths//Shear//Qx'",
+    "Shells//Strengths//Shear//Qy'",
+    "Shells//Stresses//Top",
+    "Shells//Stresses//Bottom"
+  ],
+  "fieldConfiguration": {
+    "thresholdLimits": {
+      "min": {},
+      "max": {}
+    }
+  }
+}
