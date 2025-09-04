@@ -56,6 +56,19 @@ Esta estructura modular permite que cada componente funcione de manera independi
 - **Controles de Parámetros** interactivos para ajustar umbrales, filtros y configuraciones del sistema.
 - **Visualización de Trayectorias** y historial de movimientos, incluyendo un sistema de coordenadas configurable y calibrable.
 
+### 📱 Sistema WebRTC Streaming (Nuevo)
+- **Streaming desde móviles** con WebRTC para captura remota de video desde dispositivos móviles.
+- **Servidor Go robusto** con manejo de conexiones WebRTC, endpoints HTTP y configuración ICE optimizada.
+- **Cliente Python integrado** que recibe streams WebRTC y los procesa con el pipeline de detección.
+- **Interfaz web móvil** para configuración y captura de cámara desde navegadores móviles.
+- **Reconexión automática** y manejo de errores para conexiones estables.
+
+### 🤖 Modo Headless Mejorado
+- **Detección sin interfaz gráfica** optimizada para despliegues en servidores y sistemas embebidos.
+- **Procesamiento en tiempo real** con feedback visual de progreso y estadísticas de detección.
+- **Configuración flexible** con soporte para múltiples fuentes de video (cámara local, archivos, streams).
+- **Logging detallado** con timestamps y métricas de rendimiento para monitoreo remoto.
+
 ### 💻 Arquitectura de Desarrollo y Estructura de Código
 
 El proyecto OSI4IOT-Frame sigue una arquitectura modular y escalable, diseñada para facilitar el desarrollo, mantenimiento y la integración de nuevas funcionalidades. La estructura de directorios refleja esta modularidad, con componentes claramente definidos para visión, post-procesamiento, comunicación y la interfaz de usuario.
@@ -165,6 +178,10 @@ pip install -r requirements.txt
 
 # Para usuarios con GPU NVIDIA (opcional)
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+
+# Para el sistema WebRTC (opcional)
+cd webrtc-streaming/client
+pip install -r requirements.txt
 ```
 
 #### **3. Configuración Inicial**
@@ -177,13 +194,27 @@ cp config/config.yaml.example config/config.yaml
 # Editar config/config.yaml con tus parámetros específicos
 ```
 
-#### **4. Configuración de Credenciales MQTT** (opcional)
+#### **4. Configuración del Sistema WebRTC** (opcional)
+```bash
+# Instalar Go (Windows PowerShell como administrador)
+Set-ExecutionPolicy Bypass -Scope Process -Force
+webrtc-streaming/install-go.ps1
+
+# Verificar instalación de Go
+go version
+
+# Instalar dependencias del servidor
+cd webrtc-streaming/server
+go mod tidy
+```
+
+#### **5. Configuración de Credenciales MQTT** (opcional)
 ```bash
 # Editar src/mqtt/config/mqtt_config.json
 # Configurar broker, credenciales y topics según su instalación
 ```
 
-#### **5. Configuración Avanzada del Sistema**
+#### **6. Configuración Avanzada del Sistema**
 ```bash
 # Editar config/config.yaml según sus necesidades
 # Configurar cámara, umbrales de detección, filtros de movimiento, etc.
@@ -239,17 +270,35 @@ python scripts/nombre_del_script.py
 # Interfaz principal interactiva (Recomendado)
 python run_interface.py
 
+# Modo headless para despliegues sin interfaz gráfica
+python headless/run_headless.py --source camera
+
 # Demo del sistema de coordenadas
 python run_coordinate_axis_demo.py
-
-# Demo de detección de pose
-python run_pose_detection.py
 
 # Procesamiento básico
 python run_postprocess.py
 
 # Procesamiento con coordenadas
 python run_postprocess_with_coordinates.py
+```
+
+### 📱 Sistema WebRTC Streaming
+
+```bash
+# Instalar Go (Windows PowerShell como administrador)
+webrtc-streaming/install-go.ps1
+
+# Iniciar servidor WebRTC
+cd webrtc-streaming/server
+go run main.go
+
+# Iniciar cliente Python (en otra terminal)
+cd webrtc-streaming/client
+python client.py
+
+# Acceder desde móvil
+# Abrir navegador en: http://[IP_DEL_SERVIDOR]:8080
 ```
 
 ### ⚙️ Parámetros de Configuración Avanzados
@@ -706,6 +755,33 @@ python scripts/mqtt_monitor.py --duration 60
    - Verificar red local
    - Reducir frecuencia de publicación
 
+#### **Problemas del Sistema WebRTC**
+1. **Servidor WebRTC no inicia**
+   - Verificar instalación de Go: `go version`
+   - Comprobar puertos disponibles (8080, 8443)
+   - Revisar logs del servidor para errores específicos
+
+2. **Cliente no se conecta al servidor**
+   - Verificar IP del servidor en la configuración
+   - Comprobar conectividad de red entre dispositivos
+   - Verificar que el firewall permita las conexiones
+
+3. **Calidad de video deficiente**
+   - Ajustar resolución en la interfaz web móvil
+   - Verificar ancho de banda de la red
+   - Optimizar configuración ICE del servidor
+
+#### **Problemas del Modo Headless**
+1. **Script se detiene después de inicialización**
+   - Verificar que la cámara esté disponible
+   - Comprobar permisos de acceso a la cámara
+   - Revisar logs en `headless/data/logs/`
+
+2. **No se muestran detecciones**
+   - Verificar que el modelo YOLO esté cargado correctamente
+   - Ajustar umbrales de confianza
+   - Comprobar iluminación y calidad de la imagen
+
 ### 📊 Herramientas de Depuración Avanzadas
 
 ```bash
@@ -790,16 +866,31 @@ Para cualquier consulta, soporte técnico o contribución, por favor, utilice lo
 
 ## 🚀 Versiones
 
-### ✅ Versión 1.0.0 (Actual)
+### ✅ Versión 1.2.0 (Actual)
 
 - **Detección y Tracking**: Implementación robusta de `YOLOv8` para detección de pose y `Kalman Filters` para seguimiento de objetos.
 - **Post-procesamiento Avanzado**: Cálculo de distancias, análisis de movimiento y calibración automática.
 - **Comunicación IoT**: Integración completa con `MQTT` para la plataforma `DicapuaIoT`.
 - **Interfaz de Usuario**: `GUI` interactiva con visualización en tiempo real y controles dinámicos.
-- **Configuración Centralizada**: Gestión de parámetros a través de `config.ini`.
-- **Sistema de Logging**: Registro estructurado de eventos y métricas.
+- **Sistema WebRTC Streaming**: Servidor Go robusto y cliente Python para streaming desde dispositivos móviles.
+- **Modo Headless Mejorado**: Detección sin interfaz gráfica con logging detallado y feedback de progreso.
+- **Configuración Centralizada**: Gestión de parámetros a través de `config.yaml`.
+- **Sistema de Logging**: Registro estructurado de eventos y métricas con rotación automática.
 - **Soporte Multilingüe**: Interfaz disponible en español e inglés.
 - **Scripts de Utilidad**: Herramientas para calibración, diagnóstico y generación de informes.
+- **Correcciones de Estabilidad**: Múltiples mejoras en la estabilidad del sistema y manejo de errores.
+
+### 📋 Historial de Versiones
+
+#### Versión 1.1.0
+- Implementación inicial del sistema WebRTC
+- Mejoras en el modo headless
+- Correcciones en calculadores de distancia
+
+#### Versión 1.0.0
+- Lanzamiento inicial del sistema
+- Funcionalidades básicas de detección y tracking
+- Interfaz gráfica interactiva
 
 ---
 
@@ -814,7 +905,7 @@ Para cualquier consulta, soporte técnico o contribución, por favor, utilice lo
 [![YOLO v8](https://img.shields.io/badge/YOLO-v8-green.svg)](https://github.com/ultralytics/ultralytics)
 [![MQTT](https://img.shields.io/badge/MQTT-IoT-orange.svg)](https://mqtt.org/)
 
-**Versión 1.0.0** | **Estado: Desarrollo** | **Última actualización: Agosto 2025**
+**Versión 1.2.0** | **Estado: Desarrollo** | **Última actualización: Enero 2025**
 
 </div>
 

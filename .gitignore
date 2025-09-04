@@ -9,6 +9,8 @@
 
 *.tex
 
+password.txt
+
 robust_*.py
 run_coordinates_*.py
 run_pose_*.py
@@ -110,3 +112,6 @@ config/dev_*.yaml
 
 # Vercel
 .vercel/
+
+# Carpetas ignoradas temporalmente
+webrtc-streaming/
