@@ -67,6 +67,7 @@ numpy>=1.24.0
 PyYAML>=6.0
 paho-mqtt>=1.6.0
 ultralytics>=8.0.0  # Para YOLO v8
+yt-dlp>=2023.7.6    # Para streaming de YouTube
 ```
 
 ### Sistemas Operativos Soportados
@@ -88,8 +89,14 @@ cd osi4iot-frame-iker-chavez
 # Instalar dependencias
 pip install -r requirements.txt
 
+# Instalar dependencia adicional para YouTube (si no está en requirements.txt)
+pip install yt-dlp
+
 # Verificar instalación
 python headless/run_headless.py --help
+
+# Verificar soporte YouTube
+python headless/run_headless.py --youtube-url "test" --verbose
 ```
 
 ### 2. Configuración MQTT
@@ -133,6 +140,9 @@ ls models/best.pt
 | `--iou` | float | 0.45 | Umbral IoU para NMS (0.0-1.0) |
 | `--verbose, -v` | flag | False | Modo verbose |
 | `--list-cameras, -l` | flag | False | Listar cámaras disponibles |
+| `--youtube-url` | str | None | URL de YouTube para streaming |
+| `--use-youtube` | flag | False | Habilitar modo YouTube |
+
 
 ### Parámetros MQTT Optimizados
 
@@ -142,9 +152,10 @@ ls models/best.pt
 | `--no-mqtt` | flag | False | Deshabilitar MQTT |
 | `--mqtt-debug` | flag | False | Modo debug MQTT |
 | `--mqtt-heartbeat` | int | 30 | Intervalo heartbeat (segundos) |
-| `--mqtt-stats` | int | 1 | Intervalo estadísticas (segundos) |
+| `--mqtt-stats` | float | 0.5 | Intervalo estadísticas (segundos) - optimizado |
 | `--mqtt-buffer-size` | int | 10 | Tamaño buffer MQTT |
-| `--mqtt-buffer-flush` | float | 0.1 | Intervalo flush buffer (segundos) |
+| `--mqtt-buffer-flush` | float | 0.025 | Intervalo flush buffer (segundos) - baja latencia |
+| `--mqtt-ultra-fast` | flag | False | Modo ultra-rápido: buffer 5, flush 10ms |
 | `--mqtt-topic` | str | None | Topic personalizado |
 
 ### Parámetros de Visualización
@@ -173,6 +184,13 @@ python headless/run_headless.py --list-cameras
 python headless/run_headless.py --camera-index 1
 ```
 
+### Streaming de YouTube
+
+```bash
+# Usar stream de YouTube 
+python headless/run_headless.py --youtube-url "https://www.youtube.com/watch?v=VIDEO_ID" 
+```
+
 ### Configuración Avanzada
 
 ```bash
@@ -183,34 +201,26 @@ python headless/run_headless.py -c 0 -w -v
 python headless/run_headless.py --confidence 0.7 --iou 0.5
 ```
 
-### Optimización MQTT
+## Funcionalidades Avanzadas
 
-```bash
-# Buffer MQTT optimizado para alta frecuencia
-python headless/run_headless.py \
-  --mqtt-stats 0.5 \
-  --mqtt-buffer-size 20 \
-  --mqtt-buffer-flush 0.05
+### Soporte para Streaming de YouTube
 
-# Modo debug MQTT
-python headless/run_headless.py --mqtt-debug
+El sistema ahora incluye soporte completo para streaming de YouTube:
 
-# Deshabilitar MQTT para pruebas locales
-python headless/run_headless.py --no-mqtt
-```
+- **Extracción automática de streams**: Utiliza `yt-dlp` para obtener URLs de video directas
+- **Reconexión automática**: Manejo inteligente de desconexiones de stream
+- **Modelo YOLO estándar**: Opción `--standard-yolo` para detectar objetos comunes (personas, vehículos, etc.)
+- **Compatibilidad con URLs**: Soporte para URLs de YouTube en vivo y videos
 
-### Configuración Optimizada
+### Sistema de Filtrado Inteligente
 
-```bash
-# Servidor de producción (sin ventana, optimizado)
-python headless/run_headless.py \
-  --camera-index 0 \
-  --confidence 0.6 \
-  --mqtt-stats 1 \
-  --mqtt-buffer-size 15 \
-  --no-keypoints \
-  --verbose
-```
+Implementa un sistema avanzado de filtrado de datos redundantes:
+
+- **Detección de cambios**: Solo envía datos cuando hay variaciones significativas en distancia
+- **Filtro de velocidad**: Evita envíos por movimientos menores a 0.2 cm/s
+- **Estabilidad de posición**: Requiere 5 frames estables antes de enviar
+- **Ventana temporal**: Análisis de ruido en ventana de 2 segundos
+- **Umbral de distancia**: Cambios mínimos de 0.5cm para activar envío
 
 ## Optimizaciones de Rendimiento
 
@@ -219,9 +229,11 @@ python headless/run_headless.py \
 El script implementa un sistema de buffer optimizado que:
 
 - **Agrupa mensajes**: Reduce overhead de red
-- **Flush automático**: Envío cada 100ms por defecto
+- **Flush automático**: Envío cada 25ms por defecto (optimizado)
+- **Modo ultra-rápido**: Buffer de 5 mensajes, flush cada 10ms
 - **Control de tamaño**: Buffer configurable (10 mensajes por defecto)
-- **Recuperación de errores**: Reconexión automática
+- **Filtro de redundancia**: Evita envío de datos sin cambios significativos
+- **Recuperación de errores**: Reconexión automática con backoff exponencial
 
 ### Métricas de Rendimiento
 
@@ -240,8 +252,16 @@ $$
 
 - **Detección**: ~50-100ms (dependiente de hardware)
 - **Procesamiento**: ~10-20ms
-- **Buffer**: 100ms (configurable)
+- **Buffer**: 25ms por defecto, 10ms en modo ultra-rápido
 - **Red**: Variable (dependiente de conexión)
+- **Loop principal**: 1ms (optimizado para máxima responsividad)
+
+### Nuevas Optimizaciones de Latencia
+
+- **Intervalo de estadísticas MQTT**: Reducido de 1s a 0.5s
+- **Buffer flush**: Optimizado de 100ms a 25ms
+- **Modo ultra-rápido**: Buffer de 5 mensajes, flush cada 10ms
+- **Filtro inteligente**: Evita envío de datos redundantes sin cambios significativos
 
 ## Monitoreo y Logging
 
@@ -316,6 +336,26 @@ max_delay = 5    # límite de delay exponencial
 - Descargar modelo base si es necesario
 - Comprobar permisos de lectura
 
+#### 4. Error de YouTube Stream
+```bash
+❌ Error extrayendo stream de YouTube
+```
+**Solución:**
+- Verificar que `yt-dlp` está instalado: `pip install yt-dlp`
+- Comprobar que la URL de YouTube es válida
+- Usar `--verbose` para ver detalles del error
+- Probar con diferentes URLs de YouTube
+
+#### 5. Latencia Alta en MQTT
+```bash
+📊 Stats: FPS=5.2 | Buffer: 15 msgs
+```
+**Solución:**
+- Usar modo ultra-rápido: `--mqtt-ultra-fast`
+- Reducir buffer: `--mqtt-buffer-size 5`
+- Optimizar flush: `--mqtt-buffer-flush 0.01`
+- Verificar conexión de red
+
 ### Comandos de Diagnóstico
 
 ```bash
@@ -327,6 +367,14 @@ python headless/run_headless.py --no-mqtt --show-window
 
 # Debug completo
 python headless/run_headless.py --mqtt-debug --verbose
+
+# Prueba YouTube con modelo estándar
+python headless/run_headless.py \
+  --youtube-url "https://www.youtube.com/watch?v=dQw4w9WgXcQ" \
+  --standard-yolo --no-mqtt --verbose
+
+# Prueba optimizaciones MQTT
+python headless/run_headless.py --mqtt-ultra-fast --mqtt-debug
 ```
 
 ## Desarrollo

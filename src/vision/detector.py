@@ -47,9 +47,26 @@ class YOLOPoseDetector:
             True si el modelo se cargó correctamente, False en caso contrario
         """
         try:
+            # Si el modelo no existe y es un modelo estándar de YOLO, intentar descargarlo
             if not os.path.exists(self.model_path):
                 print(f"❌ Archivo de modelo no encontrado: {self.model_path}")
-                return False
+                
+                # Verificar si es un modelo estándar de YOLO (yolov8n.pt, yolov8s.pt, etc.)
+                model_name = os.path.basename(self.model_path)
+                if model_name.startswith('yolov8') and model_name.endswith('.pt'):
+                    print(f"🔄 Descargando modelo estándar YOLO: {model_name}")
+                    try:
+                        # YOLO descargará automáticamente el modelo si no existe
+                        self.model = YOLO(model_name)
+                        print(f"✅ Modelo YOLO descargado y cargado exitosamente: {model_name}")
+                        print(f"📊 Clases del modelo: {list(self.model.names.values())}")
+                        return True
+                    except Exception as download_error:
+                        print(f"❌ Error al descargar modelo estándar: {download_error}")
+                        return False
+                else:
+                    print(f"❌ Error al cargar el modelo YOLO")
+                    return False
             
             self.model = YOLO(self.model_path)
             print(f"✅ Modelo YOLO cargado exitosamente desde: {self.model_path}")
@@ -96,7 +113,48 @@ class YOLOPoseDetector:
         if self.model is None:
             print("❌ Modelo no cargado. Llamar a load_model() primero.")
             return []
+
+        # Validación exhaustiva del frame
+        if frame is None:
+            print("❌ Frame es None")
+            return []
         
+        if frame.size == 0:
+            print("❌ Frame está vacío")
+            return []
+        
+        # Verificar y corregir dimensiones del frame
+        if len(frame.shape) == 2:
+            # Frame en escala de grises, convertir a BGR
+            print(f"🔄 Convirtiendo frame de escala de grises a BGR: {frame.shape}")
+            frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+        elif len(frame.shape) != 3:
+            print(f"❌ Frame tiene dimensiones incorrectas: {frame.shape}")
+            return []
+        
+        # Verificar canales y convertir si es necesario
+        if frame.shape[2] == 1:
+            # Frame con 1 canal, convertir a BGR
+            print(f"🔄 Convirtiendo frame de 1 canal a BGR: {frame.shape}")
+            frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+        elif frame.shape[2] == 4:
+            # Frame con canal alpha (RGBA), convertir a BGR
+            print(f"🔄 Convirtiendo frame RGBA a BGR: {frame.shape}")
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR)
+        elif frame.shape[2] != 3:
+            print(f"❌ Frame no tiene formato de canales compatible: {frame.shape}")
+            return []
+        
+        # Verificar rango de valores
+        if frame.dtype != np.uint8:
+            print(f"⚠️ Frame dtype no es uint8: {frame.dtype}, convirtiendo...")
+            frame = frame.astype(np.uint8)
+        
+        # Verificar que los valores estén en rango válido
+        if frame.min() < 0 or frame.max() > 255:
+            print(f"⚠️ Valores de frame fuera de rango [0,255]: min={frame.min()}, max={frame.max()}")
+            frame = np.clip(frame, 0, 255).astype(np.uint8)
+
         detections = []
         
         try:

@@ -14,6 +14,9 @@ import math
 import os
 from pathlib import Path
 from datetime import datetime
+import re
+import urllib.request
+import urllib.parse
 
 # Agregar el directorio padre al path
 src_path = Path(__file__).parent.parent
@@ -55,15 +58,19 @@ class HeadlessDetectionInterface:
         self.mqtt_enabled = args.mqtt_enabled and not args.no_mqtt if hasattr(args, 'no_mqtt') else True
         self.mqtt_debug = getattr(args, 'mqtt_debug', False)
         self.mqtt_heartbeat_interval = getattr(args, 'mqtt_heartbeat', 30)
-        self.mqtt_stats_interval = getattr(args, 'mqtt_stats', 1)  # Reducido de 5 a 1 segundo
+        self.mqtt_stats_interval = getattr(args, 'mqtt_stats', 0.5)  # Optimizado a 0.5 segundos para menor latencia
         self.mqtt_custom_topic = getattr(args, 'mqtt_topic', None)
         
         # Sistema de optimización MQTT con buffer
         # Reduce latencia agrupando mensajes y minimizando llamadas de red
         self.mqtt_message_buffer = []  # Cola FIFO para mensajes pendientes
-        self.mqtt_buffer_size = getattr(args, 'mqtt_buffer_size', 10)  # Máximo de mensajes en buffer
+        # Modo ultra-rápido: buffer más pequeño para latencia mínima
+        default_buffer_size = 5 if getattr(args, 'mqtt_ultra_fast', False) else 10
+        self.mqtt_buffer_size = getattr(args, 'mqtt_buffer_size', default_buffer_size)
         self.last_buffer_flush = 0  # Timestamp del último vaciado
-        self.buffer_flush_interval = getattr(args, 'mqtt_buffer_flush', 0.1)  # Flush cada 100ms por defecto
+        # Modo ultra-rápido: flush cada 10ms para latencia mínima
+        default_flush_interval = 0.01 if getattr(args, 'mqtt_ultra_fast', False) else 0.025
+        self.buffer_flush_interval = getattr(args, 'mqtt_buffer_flush', default_flush_interval)
         
         # Sistema de reconexión MQTT con backoff exponencial
         # Implementa estrategia de reintento robusta para conexiones inestables
@@ -78,11 +85,30 @@ class HeadlessDetectionInterface:
         self.last_heartbeat = 0  # Timestamp del último heartbeat enviado
         self.last_stats_publish = 0  # Timestamp de última publicación de stats
         
+        # Configuración de fuente de video (debe ir antes de inicializar detector)
+        self.video_source = args.camera_index if args else '0'
+        self.youtube_url = getattr(args, 'youtube_url', None)
+        self.use_youtube = getattr(args, 'use_youtube', False)
+        self.use_standard_yolo = getattr(args, 'standard_yolo', False)
+        self.show_window = args.show_window if args else False
+        
+        # Configuración de detección desde argumentos (antes de inicializar detector)
+        self.confidence_threshold = args.confidence if args else 0.5
+        self.iou_threshold = args.iou if args else 0.45
+        self.show_keypoints = args.keypoints if args else True
+        self.show_bboxes = args.bboxes if args else True
+        self.show_labels = args.labels if args else True
+        
         # Componentes del sistema
         # Usar ruta absoluta para el archivo de configuración
         config_file_path = os.path.join(src_path, 'config', 'config.yaml')
-        print(f"📄 Usando archivo de configuración: {config_file_path}")
-        self.detector = YOLOPoseDetector(config_file_path)
+        
+        # Si se usa YouTube con modelo estándar, crear configuración temporal
+        if self.use_standard_yolo and self.use_youtube:
+            self.setup_standard_yolo_config(config_file_path)
+        else:
+            print(f"📄 Usando archivo de configuración: {config_file_path}")
+            self.detector = YOLOPoseDetector(config_file_path)
         
         # Crear DicapuaPublisher para comunicación directa
         self.dicapua_publisher = None
@@ -118,14 +144,18 @@ class HeadlessDetectionInterface:
         self.current_frame = None
         self.detection_thread = None
         
-        # Configuración de detección desde argumentos
-        self.confidence_threshold = args.confidence if args else 0.5
-        self.iou_threshold = args.iou if args else 0.45
-        self.show_keypoints = args.keypoints if args else True
-        self.show_bboxes = args.bboxes if args else True
-        self.show_labels = args.labels if args else True
-        self.video_source = args.camera_index if args else '0'
-        self.show_window = args.show_window if args else False
+        # Variables de configuración ya definidas anteriormente
+        
+        # Determinar fuente de video basada en argumentos
+        if self.use_youtube and self.youtube_url:
+            self.video_source = self.youtube_url
+            if self.use_standard_yolo:
+                print(f"🎥 Usando URL de YouTube con modelo YOLO estándar: {self.youtube_url}")
+            else:
+                print(f"🎥 Usando URL de YouTube: {self.youtube_url}")
+        elif hasattr(args, 'camera_index'):
+            self.video_source = args.camera_index
+            print(f"📹 Usando cámara/archivo: {self.video_source}")
         
         # Sistema de métricas de rendimiento en tiempo real
         # Proporciona estadísticas detalladas para optimización y monitoreo
@@ -161,6 +191,37 @@ class HeadlessDetectionInterface:
         if self.mqtt_enabled:
             print(f"💓 Heartbeat: {self.mqtt_heartbeat_interval}s | 📊 Stats: {self.mqtt_stats_interval}s")
             print(f"📦 Buffer MQTT: {self.mqtt_buffer_size} msgs | ⚡ Flush: {self.buffer_flush_interval*1000:.0f}ms")
+    
+    def setup_standard_yolo_config(self, original_config_path):
+        """Configura un modelo YOLO estándar para YouTube."""
+        import yaml
+        import tempfile
+        
+        try:
+            # Leer configuración original
+            with open(original_config_path, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+            
+            # Modificar para usar modelo estándar
+            config['vision']['yolo_model_path'] = 'yolov8n.pt'  # Modelo estándar ligero
+            config['vision']['confidence_threshold'] = self.confidence_threshold
+            
+            # Crear archivo temporal
+            temp_config = tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False, encoding='utf-8')
+            yaml.dump(config, temp_config, default_flow_style=False, allow_unicode=True)
+            temp_config.close()
+            
+            print(f"📄 Usando configuración temporal con modelo YOLO estándar: {temp_config.name}")
+            print(f"🤖 Modelo: yolov8n.pt (detecta objetos comunes: personas, vehículos, animales, etc.)")
+            
+            # Inicializar detector con configuración temporal
+            self.detector = YOLOPoseDetector(temp_config.name)
+            self.temp_config_file = temp_config.name  # Guardar para limpieza posterior
+            
+        except Exception as e:
+            print(f"❌ Error configurando modelo estándar: {e}")
+            print(f"📄 Usando configuración original: {original_config_path}")
+            self.detector = YOLOPoseDetector(original_config_path)
     
     def initialize_mqtt_with_retry(self):
         """Inicializa MQTT con reintentos y manejo de errores."""
@@ -484,6 +545,99 @@ class HeadlessDetectionInterface:
             self.logger.error(f"Error en publish_system_stats: {e}")
             return False
     
+    def is_youtube_url(self, url):
+        """Verifica si una URL es de YouTube.
+        
+        Args:
+            url (str): URL a verificar
+            
+        Returns:
+            bool: True si es una URL de YouTube válida
+        """
+        youtube_patterns = [
+            r'(?:https?://)?(?:www\.)?youtube\.com/watch\?v=([\w-]+)',
+            r'(?:https?://)?(?:www\.)?youtube\.com/live/([\w-]+)',
+            r'(?:https?://)?youtu\.be/([\w-]+)',
+            r'(?:https?://)?(?:www\.)?youtube\.com/embed/([\w-]+)'
+        ]
+        
+        for pattern in youtube_patterns:
+            if re.match(pattern, url):
+                return True
+        return False
+    
+    def extract_youtube_stream_url(self, youtube_url):
+        """Extrae la URL de stream directo de un video de YouTube.
+        
+        Args:
+            youtube_url (str): URL de YouTube
+            
+        Returns:
+            str: URL de stream directo o None si falla
+        """
+        try:
+            # Intentar usar yt-dlp si está disponible
+            try:
+                import yt_dlp
+                
+                # Configuración mejorada para manejar errores de conexión HTTP
+                ydl_opts = {
+                    'format': 'best[height<=720]/best',  # Preferir 720p o menor para mejor rendimiento
+                    'quiet': True,
+                    'no_warnings': True,
+                    # Opciones para manejar errores de conexión
+                    'retries': 3,
+                    'fragment_retries': 3,
+                    'retry_sleep_functions': {
+                        'http': lambda n: min(2 ** n, 10),  # Backoff exponencial hasta 10s
+                        'fragment': lambda n: min(2 ** n, 5)  # Backoff para fragmentos hasta 5s
+                    },
+                    # Configuración de red para mejor estabilidad
+                    'http_chunk_size': 10485760,  # 10MB chunks
+                    'socket_timeout': 30,
+                    # Headers para evitar bloqueos
+                    'http_headers': {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    }
+                }
+                
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(youtube_url, download=False)
+                    if 'url' in info:
+                        print(f"✅ Stream URL extraída usando yt-dlp con configuración robusta")
+                        return info['url']
+                        
+            except ImportError:
+                print("⚠️ yt-dlp no está instalado, intentando método alternativo...")
+            except Exception as e:
+                print(f"⚠️ Error con yt-dlp: {e}, intentando método alternativo...")
+                
+            # Método alternativo usando pafy si está disponible
+            try:
+                import pafy
+                
+                video = pafy.new(youtube_url)
+                best_stream = video.getbest(preftype="mp4")
+                if best_stream:
+                    print(f"✅ Stream URL extraída usando pafy")
+                    return best_stream.url
+                    
+            except ImportError:
+                print("⚠️ pafy no está instalado")
+            except Exception as e:
+                print(f"⚠️ Error con pafy: {e}")
+                
+            # Si no hay librerías disponibles, mostrar instrucciones
+            print("❌ No se encontraron librerías para procesar YouTube")
+            print("💡 Para usar URLs de YouTube, instala una de estas opciones:")
+            print("   pip install yt-dlp")
+            print("   pip install pafy youtube-dl")
+            return None
+            
+        except Exception as e:
+            print(f"❌ Error extrayendo stream de YouTube: {e}")
+            return None
+    
     def detect_available_cameras(self, max_cameras=10):
         """Detecta las cámaras disponibles en el sistema.
         
@@ -561,10 +715,24 @@ class HeadlessDetectionInterface:
         try:
             # Determinar fuente de video
             source = self.video_source
-            if isinstance(source, str) and source.isdigit():
+            
+            # Verificar si es una URL de YouTube
+            if isinstance(source, str) and self.is_youtube_url(source):
+                print(f"🎥 Detectada URL de YouTube: {source}")
+                print("🔄 Extrayendo URL de stream...")
+                
+                stream_url = self.extract_youtube_stream_url(source)
+                if stream_url:
+                    source = stream_url
+                    print(f"✅ URL de stream obtenida")
+                else:
+                    print("❌ No se pudo obtener la URL de stream de YouTube")
+                    return False
+            elif isinstance(source, str) and source.isdigit():
                 source = int(source)
             
             # Inicializar captura de video
+            print(f"🔄 Inicializando captura de video...")
             self.video_capture = cv2.VideoCapture(source)
             
             if not self.video_capture.isOpened():
@@ -663,13 +831,61 @@ class HeadlessDetectionInterface:
         fps_counter = 0
         fps_start_time = time.time()
         
+        # Variables para reconexión de YouTube
+        youtube_reconnect_attempts = 0
+        max_youtube_reconnects = 3
+        last_successful_read = time.time()
+        
         while self.running:
             try:
                 ret, frame = self.video_capture.read()
                 
                 if not ret:
+                    # Si es una URL de YouTube y falló la lectura, intentar reconectar
+                    if hasattr(self, 'use_youtube') and self.use_youtube and youtube_reconnect_attempts < max_youtube_reconnects:
+                        current_time = time.time()
+                        # Solo reconectar si han pasado más de 5 segundos desde la última lectura exitosa
+                        if current_time - last_successful_read > 5:
+                            youtube_reconnect_attempts += 1
+                            print(f"⚠️ Error de conexión YouTube, reintentando ({youtube_reconnect_attempts}/{max_youtube_reconnects})...")
+                            
+                            # Liberar captura actual
+                            if self.video_capture:
+                                self.video_capture.release()
+                            
+                            # Intentar reconectar
+                            try:
+                                # Re-extraer URL del stream (puede haber cambiado)
+                                if hasattr(self, 'youtube_url'):
+                                    new_stream_url = self.extract_youtube_stream_url(self.youtube_url)
+                                    if new_stream_url:
+                                        self.video_capture = cv2.VideoCapture(new_stream_url)
+                                        # Probar lectura
+                                        test_ret, test_frame = self.video_capture.read()
+                                        if test_ret:
+                                            print(f"✅ Reconexión YouTube exitosa")
+                                            youtube_reconnect_attempts = 0  # Reset contador
+                                            last_successful_read = time.time()
+                                            continue  # Continuar con el nuevo frame
+                                        else:
+                                            print(f"❌ Reconexión YouTube falló en lectura de prueba")
+                                    else:
+                                        print(f"❌ No se pudo re-extraer URL de YouTube")
+                            except Exception as reconnect_error:
+                                print(f"❌ Error durante reconexión YouTube: {reconnect_error}")
+                            
+                            # Esperar antes del siguiente intento
+                            time.sleep(2)
+                            continue
+                    
                     self.logger.warning("No se pudo leer frame")
+                    if hasattr(self, 'use_youtube') and self.use_youtube:
+                        print(f"❌ Agotados los intentos de reconexión YouTube ({max_youtube_reconnects})")
                     break
+                else:
+                    # Lectura exitosa, actualizar timestamp
+                    last_successful_read = time.time()
+                    youtube_reconnect_attempts = 0  # Reset contador en lectura exitosa
                 
                 self.current_frame = frame.copy()
                 
@@ -733,8 +949,8 @@ class HeadlessDetectionInterface:
                         self.mqtt_connected = False
                         self.reconnect_mqtt()
                 
-                # Pausa más pequeña para mayor responsividad
-                time.sleep(0.005)  # Reducido de 0.01 a 0.005 segundos
+                # Pausa mínima para máxima responsividad MQTT
+                time.sleep(0.001)  # Optimizado a 1ms para menor latencia
                 
             except Exception as e:
                 self.logger.error(f"Error en bucle de detección: {e}")
@@ -1021,6 +1237,15 @@ class HeadlessDetectionInterface:
         except Exception as e:
             print(f"⚠️ Error al cerrar recursos MQTT: {e}")
         
+        # Limpiar archivo de configuración temporal si existe
+        if hasattr(self, 'temp_config_file'):
+            try:
+                import os
+                os.unlink(self.temp_config_file)
+                print(f"🗑️ Archivo temporal eliminado: {self.temp_config_file}")
+            except Exception as e:
+                print(f"⚠️ Error eliminando archivo temporal: {e}")
+        
         print("🧹 Limpieza completada")
         self.logger.info("Interfaz headless cerrada")
 
@@ -1037,6 +1262,8 @@ Ejemplos de uso:
   python run_headless.py --confidence 0.7 --iou 0.5 # Configurar umbrales
   python run_headless.py --config custom.yaml      # Usar archivo de configuración personalizado
   python run_headless.py -c video.mp4 -w           # Usar archivo de video
+  python run_headless.py -y "https://www.youtube.com/watch?v=VIDEO_ID" -w  # Usar stream de YouTube
+  python run_headless.py --youtube-url "https://youtu.be/VIDEO_ID"         # Usar stream de YouTube (formato corto)
         """
     )
     
@@ -1045,8 +1272,15 @@ Ejemplos de uso:
                        help='Ruta al archivo de configuración (default: config/config.yaml)')
     
     # Argumentos de video
-    parser.add_argument('--camera-index', '-c', default='0',
-                       help='Índice de la cámara o ruta al archivo de video (default: 0)')
+    video_group = parser.add_mutually_exclusive_group()
+    video_group.add_argument('--camera-index', '-c', default='0',
+                           help='Índice de la cámara o ruta al archivo de video (default: 0)')
+    video_group.add_argument('--youtube-url', '-y', type=str,
+                           help='URL de YouTube para usar como fuente de video')
+    
+    parser.add_argument('--standard-yolo', action='store_true',
+                       help='Usar modelo YOLO estándar (yolov8n.pt) para detectar objetos comunes cuando se use YouTube')
+    
     parser.add_argument('--show-window', '-w', action='store_true',
                        help='Mostrar ventana con la detección en tiempo real')
     
@@ -1065,14 +1299,16 @@ Ejemplos de uso:
                        help='Habilitar modo debug MQTT')
     parser.add_argument('--mqtt-heartbeat', type=int, default=30,
                        help='Intervalo de heartbeat MQTT en segundos (default: 30)')
-    parser.add_argument('--mqtt-stats', type=int, default=1,
-                       help='Intervalo de estadísticas MQTT en segundos (default: 1 - optimizado)')
+    parser.add_argument('--mqtt-stats', type=float, default=0.5,
+                        help='Intervalo de estadísticas MQTT en segundos (default: 0.5 - ultra optimizado)')
     parser.add_argument('--mqtt-buffer-size', type=int, default=10,
                        help='Tamaño del buffer MQTT para envío en lotes (default: 10)')
-    parser.add_argument('--mqtt-buffer-flush', type=float, default=0.1,
-                       help='Intervalo de flush del buffer MQTT en segundos (default: 0.1)')
+    parser.add_argument('--mqtt-buffer-flush', type=float, default=0.025,
+                        help='Intervalo de flush del buffer MQTT en segundos (default: 0.025 - baja latencia)')
+    parser.add_argument('--mqtt-ultra-fast', action='store_true',
+                        help='Modo ultra-rápido: buffer reducido (5) y flush cada 10ms para latencia mínima')
     parser.add_argument('--mqtt-topic', type=str,
-                       help='Topic personalizado para mensajes MQTT')
+                        help='Topic personalizado para mensajes MQTT')
     
     # Argumentos de visualización
     parser.add_argument('--keypoints', action='store_true', default=True,
@@ -1095,6 +1331,14 @@ Ejemplos de uso:
                        help='Listar cámaras disponibles y salir')
     
     args = parser.parse_args()
+    
+    # Configurar uso de YouTube si se proporciona URL
+    if hasattr(args, 'youtube_url') and args.youtube_url:
+        args.use_youtube = True
+        args.camera_index = args.youtube_url  # Para compatibilidad con el código existente
+        print(f"🎥 Configurado para usar YouTube: {args.youtube_url}")
+    else:
+        args.use_youtube = False
     
     # Si se solicita listar cámaras, hacerlo y salir
     if args.list_cameras:
@@ -1121,7 +1365,10 @@ Ejemplos de uso:
     if args.verbose:
         print("🔧 Configuración:")
         print(f"  📁 Config: {args.config}")
-        print(f"  📹 Cámara: {args.camera_index}")
+        if args.use_youtube:
+            print(f"  🎥 YouTube URL: {args.youtube_url}")
+        else:
+            print(f"  📹 Cámara/Archivo: {args.camera_index}")
         print(f"  Ventana: {'Sí' if args.show_window else 'No'}")
         print(f"  Confianza: {args.confidence}")
         print(f"  IoU: {args.iou}")
@@ -1136,6 +1383,10 @@ Ejemplos de uso:
     print("- Procesamiento de video en segundo plano")
     print("- Cálculo de distancias y comunicación MQTT")
     print("- Información de estado en consola")
+    if args.use_youtube:
+        print("- Soporte para streams de YouTube")
+        print("  💡 Nota: Para YouTube se requiere 'yt-dlp' o 'pafy'")
+        print("  📦 Instalar con: pip install yt-dlp")
     if args.show_window:
         print("- Ventana de visualización habilitada")
     print("\nPresiona Ctrl+C para salir\n")
