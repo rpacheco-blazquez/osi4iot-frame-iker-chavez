@@ -2,7 +2,7 @@
   "name": "gid2json",
   "version": "1.0.0",
   "main": "index.mjs",
-  "license": "MIT",
+  "license": "AGPL-3.0",
   "type": "module",
   "dependencies": {
     "merge-files": "^0.1.2",

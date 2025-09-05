@@ -88,7 +88,7 @@ osi4iot-frame/
 │   └── utils/              # Funciones de utilidad (logging, config_manager, math_utils)
 ├── tests/                  # Pruebas unitarias e integración
 ├── .gitignore              # Archivos a ignorar por Git
-├── LICENSE                 # Licencia del proyecto
+├── LICENSE                 # Licencia del proyecto (AGPL-3.0)
 ├── README.md               # Este archivo
 ├── requirements.txt        # Dependencias de Python
 └── setup.py                # Script de instalación
@@ -900,7 +900,7 @@ Para cualquier consulta, soporte técnico o contribución, por favor, utilice lo
 
 *Desarrollado por CIMNE - Centro Internacional de Métodos Numéricos en Ingeniería*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![YOLO v8](https://img.shields.io/badge/YOLO-v8-green.svg)](https://github.com/ultralytics/ultralytics)
 [![MQTT](https://img.shields.io/badge/MQTT-IoT-orange.svg)](https://mqtt.org/)
