@@ -145,17 +145,6 @@ Esto generará archivos como:
 
 <img src="media/Blender_mesh.png" width="70%" style="display: block; margin: 0 auto;">
 
-## Objetos y Metadatos en Blender
-
-
-| Objeto   | Malla    | Material               | Notas                         |
-|----------|----------|------------------------|-------------------------------|
-| Bolt.001 | Bolt.004 | Tornillo Metal Negro  |    |
-| Bolt.002 | Bolt.004 | Tornillo Metal Negro   |      |
-
-
-
-
 ### 6. Solución de Problemas
 
 #### Problema 1: Addon No Aparece en el Menú
