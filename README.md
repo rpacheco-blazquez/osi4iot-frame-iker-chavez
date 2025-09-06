@@ -905,7 +905,7 @@ Para cualquier consulta, soporte técnico o contribución, por favor, utilice lo
 [![YOLO v8](https://img.shields.io/badge/YOLO-v8-green.svg)](https://github.com/ultralytics/ultralytics)
 [![MQTT](https://img.shields.io/badge/MQTT-IoT-orange.svg)](https://mqtt.org/)
 
-**Versión 1.2.0** | **Estado: Desarrollo** | **Última actualización: Enero 2025**
+**Versión 1.2.0** | **Estado: Desarrollo** | **Última actualización: Septiembre 2025**
 
 </div>
 
